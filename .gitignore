@@ -19,6 +19,7 @@ target/
 *.ipr
 *.iml
 *.iws
+.idea/
 
 # Other
 .svn/

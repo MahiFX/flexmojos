@@ -24,7 +24,7 @@
   <parent>
     <groupId>net.flexmojos.oss</groupId>
     <artifactId>flexmojos-generator</artifactId>
-    <version>5.1-beta-SNAPSHOT</version>
+    <version>5.1-mahi</version>
   </parent>
 
   <artifactId>flexmojos-generator-internal-threadlocal</artifactId>
@@ -88,6 +88,12 @@
       <version>${flex.sdk.version}</version>
       <scope>test</scope>
     </dependency>
+      <dependency>
+          <groupId>com.adobe.flex.framework</groupId>
+          <artifactId>airspark</artifactId>
+          <version>4.5.0.20967</version>
+          <type>rb.swc</type>
+      </dependency>
   </dependencies>
 
 </project>
