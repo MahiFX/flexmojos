@@ -64,12 +64,12 @@
 
     <dependencies>
         <dependency>
-            <groupId>%{flex.groupId}.framework</groupId>
+            <groupId>%{flex.groupId}</groupId>
             <artifactId>flex-framework</artifactId>
             <type>pom</type>
         </dependency>
         <dependency>
-            <groupId>%{flex.groupId}.framework</groupId>
+            <groupId>%{flex.groupId}</groupId>
             <artifactId>framework</artifactId>
             <type>swc</type>
             <scope>caching</scope>

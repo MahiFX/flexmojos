@@ -58,7 +58,7 @@
             <type>swc</type>
         </dependency>
 		<dependency>
-			<groupId>%{flex.groupId}.framework</groupId>
+			<groupId>%{flex.groupId}</groupId>
 			<artifactId>flex-framework</artifactId>
 			<type>pom</type>
 		</dependency>

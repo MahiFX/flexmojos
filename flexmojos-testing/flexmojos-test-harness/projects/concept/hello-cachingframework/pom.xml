@@ -50,7 +50,7 @@
 
 	<dependencies>
 		<dependency>
-			<groupId>%{flex.groupId}.framework</groupId>
+			<groupId>%{flex.groupId}</groupId>
 			<artifactId>framework</artifactId>
 			<type>swc</type>
 			<scope>caching</scope>

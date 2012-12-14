@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="Maven: com.adobe.flex.compiler:xercesImpl_ko:4.5.1.21328A">
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/com/adobe/flex/compiler/xercesImpl_ko/4.5.1.21328A/xercesImpl_ko-4.5.1.21328A.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$MAVEN_REPOSITORY$/com/adobe/flex/compiler/xercesImpl_ko/4.5.1.21328A/xercesImpl_ko-4.5.1.21328A-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$MAVEN_REPOSITORY$/com/adobe/flex/compiler/xercesImpl_ko/4.5.1.21328A/xercesImpl_ko-4.5.1.21328A-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

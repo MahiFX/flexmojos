@@ -34,7 +34,7 @@
     <dependencies>
         <!-- http://groups.google.com/group/flex-mojos/browse_thread/thread/8242dc44810c4463 -->
         <dependency>
-            <groupId>%{flex.groupId}.framework</groupId>
+            <groupId>%{flex.groupId}</groupId>
             <artifactId>flex-framework</artifactId>
             <type>pom</type>
         </dependency>

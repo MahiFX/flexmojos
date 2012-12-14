@@ -30,7 +30,7 @@
 
     <groupId>net.flexmojos.oss</groupId>
     <artifactId>flexmojos-parent</artifactId>
-    <version>6.0-SNAPSHOT</version>
+    <version>6.0-mahi-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>Flexmojos Parent</name>
@@ -47,25 +47,42 @@
 
     <distributionManagement>
         <repository>
-            <id>ossrh</id>
-            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
+            <id>releases</id>
+            <url>http://build.mahifx.com/nexus/content/repositories/thirdparty</url>
         </repository>
         <snapshotRepository>
-            <id>ossrh</id>
-            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+            <id>thirdpartysnapshots</id>
+            <url>http://build.mahifx.com/nexus/content/repositories/thirdpartysnapshots</url>
         </snapshotRepository>
     </distributionManagement>
 
     <repositories>
         <repository>
-            <id>rso</id>
-            <url>http://repository.sonatype.org/content/groups/flexgroup/</url>
+            <id>snapshots</id>
+            <name>snapshots</name>
+            <url>http://build.mahifx.com:8081/nexus/content/groups/snapshot</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+        <repository>
+            <id>thirdparty</id>
+            <url>http://build.mahifx.com/nexus/content/repositories/thirdparty</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
         </repository>
     </repositories>
     <pluginRepositories>
-        <pluginRepository>
-            <id>rso</id>
-            <url>http://repository.sonatype.org/content/groups/flexgroup/</url>
+            <pluginRepository>
+            <id>releases</id>
+            <url>http://build.mahifx.com/nexus/content/repositories/thirdparty</url>
         </pluginRepository>
     </pluginRepositories>
 
@@ -88,14 +105,14 @@
             is outside the valid version range and for air applications 4.6 and above 2.5 is outside the lower bound of
             valid versions
         -->
-        <!--flex.version>4.5.1.21328A</flex.version>
+        <flex.version>4.5.1.21328</flex.version>
         <player.version>10.2</player.version>
-        <flex.groupId>com.adobe.flex</flex.groupId-->
+        <flex.groupId>com.adobe.flex</flex.groupId>
 
         <!-- Compile with 4.6.0 (PASSED) -->
-        <flex.version>4.6.0.23201</flex.version>
-        <player.version>11.1</player.version>
-        <flex.groupId>com.adobe.flex</flex.groupId>
+        <!--<flex.version>4.6.0.23201</flex.version>-->
+        <!--<player.version>11.1</player.version>-->
+        <!--<flex.groupId>com.adobe.flex</flex.groupId>-->
 
         <!-- Compile with 4.8.0
             - All tests addressing the caching framework will fail as no 4.8 SWZ libraries are provided by adobe.
@@ -122,7 +139,7 @@
                 <plugin>
                     <groupId>net.flexmojos.oss</groupId>
                     <artifactId>flexmojos-maven-plugin</artifactId>
-                    <version>6.0-SNAPSHOT</version>
+                    <version>6.0-mahi-SNAPSHOT</version>
                 </plugin>
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
@@ -649,13 +666,14 @@
             <dependency>
                 <groupId>${flex.groupId}</groupId>
                 <artifactId>compiler</artifactId>
-                <version>${flex.version}</version>
+                <version>${flex.version}A</version>
                 <type>pom</type>
             </dependency>
+
             <dependency>
                 <groupId>${flex.groupId}</groupId>
                 <artifactId>framework</artifactId>
-                <version>${flex.version}</version>
+                <version>${flex.version}A</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>

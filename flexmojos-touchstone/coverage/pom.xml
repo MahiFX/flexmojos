@@ -24,7 +24,7 @@
   <parent>
     <groupId>net.flexmojos.oss</groupId>
     <artifactId>flexmojos-flex-super-pom</artifactId>
-    <version>6.0-SNAPSHOT</version>
+    <version>6.0-mahi-SNAPSHOT</version>
   </parent>
 
   <groupId>com.adobe.samples</groupId>
@@ -86,26 +86,26 @@
               </execution>
             </executions>
           </plugin>
-          <plugin>
-            <groupId>com.sonatype.maven.plugins</groupId>
-            <artifactId>maven-upload-plugin</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
-            <executions>
-              <execution>
-                <id>publish-site</id>
-                <phase>verify</phase>
-                <goals>
-                  <goal>upload-file</goal>
-                </goals>
-                <configuration>
-                  <serverId>forge</serverId>
-                  <repositoryUrl>http://repository.sonatype.org/service/local/repositories/flexmojos-site/content-compressed</repositoryUrl>
-                  <file>target/${project.artifactId}-${project.version}-site.jar</file>
-                  <repositoryPath>flexmojos/sample</repositoryPath>
-                </configuration>
-              </execution>
-            </executions>
-          </plugin>
+          <!--<plugin>-->
+            <!--<groupId>com.sonatype.maven.plugins</groupId>-->
+            <!--<artifactId>maven-upload-plugin</artifactId>-->
+            <!--<version>0.0.1-SNAPSHOT</version>-->
+            <!--<executions>-->
+              <!--<execution>-->
+                <!--<id>publish-site</id>-->
+                <!--<phase>verify</phase>-->
+                <!--<goals>-->
+                  <!--<goal>upload-file</goal>-->
+                <!--</goals>-->
+                <!--<configuration>-->
+                  <!--<serverId>forge</serverId>-->
+                  <!--<repositoryUrl>http://repository.sonatype.org/service/local/repositories/flexmojos-site/content-compressed</repositoryUrl>-->
+                  <!--<file>target/${project.artifactId}-${project.version}-site.jar</file>-->
+                  <!--<repositoryPath>flexmojos/sample</repositoryPath>-->
+                <!--</configuration>-->
+              <!--</execution>-->
+            <!--</executions>-->
+          <!--</plugin>-->
         </plugins>
       </build>
     </profile>

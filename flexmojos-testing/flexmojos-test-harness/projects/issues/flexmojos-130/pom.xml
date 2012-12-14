@@ -64,7 +64,7 @@
 
     <dependencies>
         <dependency>
-            <groupId>%{flex.groupId}.framework</groupId>
+            <groupId>%{flex.groupId}</groupId>
             <artifactId>flex-framework</artifactId>
             <version>%{flex.version}</version>
             <type>pom</type>

@@ -24,7 +24,7 @@
     <parent>
         <groupId>net.flexmojos.oss</groupId>
         <artifactId>flexmojos-testing</artifactId>
-        <version>6.0-SNAPSHOT</version>
+        <version>6.0-mahi-SNAPSHOT</version>
     </parent>
 
     <artifactId>flexmojos-unittest</artifactId>
@@ -47,7 +47,7 @@
                     <dependency>
                         <groupId>${flex.groupId}</groupId>
                         <artifactId>compiler</artifactId>
-                        <version>${flex.version}</version>
+                        <version>${flex.version}A</version>
                         <type>pom</type>
                     </dependency>
                 </dependencies>
@@ -97,14 +97,14 @@
             <dependency>
                 <groupId>${flex.groupId}</groupId>
                 <artifactId>framework</artifactId>
-                <version>${flex.version}</version>
+                <version>${flex.version}A</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
             <dependency>
-                <groupId>${flex.groupId}.framework</groupId>
+                <groupId>${flex.groupId}.framework.air</groupId>
                 <artifactId>air</artifactId>
-                <version>${flex.version}</version>
+                <version>${flex.version}A</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
