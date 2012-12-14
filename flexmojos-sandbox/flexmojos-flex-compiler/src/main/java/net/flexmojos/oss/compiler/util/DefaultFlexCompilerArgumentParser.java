@@ -17,27 +17,14 @@
  */
 package net.flexmojos.oss.compiler.util;
 
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
+import net.flexmojos.oss.compiler.*;
+import net.flexmojos.oss.generator.iface.StringUtil;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.logging.AbstractLogEnabled;
-import net.flexmojos.oss.compiler.IASDocConfiguration;
-import net.flexmojos.oss.compiler.IFlexArgument;
-import net.flexmojos.oss.compiler.IFlexConfiguration;
-import net.flexmojos.oss.compiler.IFontsConfiguration;
-import net.flexmojos.oss.compiler.IMetadataConfiguration;
-import net.flexmojos.oss.compiler.IRuntimeSharedLibraryPath;
-import net.flexmojos.oss.generator.iface.StringUtil;
+
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.util.*;
 
 @Component( role = FlexCompilerArgumentParser.class )
 public class DefaultFlexCompilerArgumentParser
