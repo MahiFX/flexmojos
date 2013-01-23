@@ -266,7 +266,10 @@ public class SignAirMojo
                     {
                         scanner = scan( set );
                     }
-
+                    if(scanner == null)
+                    {
+                        continue;
+                    }
                     File directory = file( set.getDirectory(), project.getBasedir() );
 
                     String[] files = scanner.getIncludedFiles();
