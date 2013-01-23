@@ -21,11 +21,7 @@ import static net.flexmojos.oss.util.PathUtil.file;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -46,7 +42,7 @@ import net.flexmojos.oss.plugin.utilities.MavenUtils;
 
 /**
  * Goal to copy flex artifacts into war projects.
- * 
+ *
  * @author Marvin Herman Froeder (velo.br@gmail.com)
  * @since 3.0
  * @goal copy-flex-resources
@@ -75,35 +71,35 @@ public class CopyMojo
 
     /**
      * Skip mojo execution
-     * 
+     *
      * @parameter default-value="false" expression="${flexmojos.copy.skip}"
      */
     private boolean skip;
 
     /**
      * When true will strip artifact and version information from the built MXML module artifact.
-     * 
+     *
      * @parameter default-value="false"
      */
     private boolean stripModuleArtifactInfo;
 
     /**
      * Strip artifact version during copy
-     * 
+     *
      * @parameter default-value="false"
      */
     private boolean stripVersion;
 
     /**
      * Use final name if/when available
-     * 
+     *
      * @parameter default-value="true"
      */
     private boolean useFinalName;
 
     /**
      * The directory where the webapp is built.
-     * 
+     *
      * @parameter expression="${project.build.directory}/${project.build.finalName}"
      * @required
      */
@@ -266,12 +262,14 @@ public class CopyMojo
 
     private String getLastRslUrls( MavenProject artifactProject )
     {
-        String[] urls = CompileConfigurationLoader.getCompilerPluginSettings( artifactProject, "rslUrls" );
-        if ( urls == null || urls.length == 0 )
+        Map<String, String> urlMap = CompileConfigurationLoader.getCompilerPluginSettingsMap(artifactProject, "rslUrls");
+        if ( urlMap == null || urlMap.size() == 0 )
         {
-            urls = AbstractMavenMojo.DEFAULT_RSL_URLS;
+            urlMap = AbstractMavenMojo.DEFAULT_RSL_URLS;
         }
-        return urls[urls.length - 1];
+        final Collection<String> values = urlMap.values();
+        final String[] urls = values.toArray(new String[values.size()]);
+        return urls[urls.length - 1 ]; //TODO why?
     }
 
     private String getRuntimeLocaleOutputPath( MavenProject artifactProject )

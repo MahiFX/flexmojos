@@ -17,55 +17,20 @@
  */
 package net.flexmojos.oss.plugin.compiler;
 
-import static java.util.Arrays.asList;
-import static org.hamcrest.CoreMatchers.allOf;
-import static org.hamcrest.CoreMatchers.anyOf;
-import static org.hamcrest.CoreMatchers.not;
-import static org.hamcrest.Matchers.nullValue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-import static net.flexmojos.oss.matcher.artifact.ArtifactMatcher.artifactId;
-import static net.flexmojos.oss.matcher.artifact.ArtifactMatcher.classifier;
-import static net.flexmojos.oss.matcher.artifact.ArtifactMatcher.groupId;
-import static net.flexmojos.oss.matcher.artifact.ArtifactMatcher.scope;
-import static net.flexmojos.oss.matcher.artifact.ArtifactMatcher.type;
-import static net.flexmojos.oss.plugin.common.FlexClassifier.CONFIGS;
-import static net.flexmojos.oss.plugin.common.FlexClassifier.LINK_REPORT;
-import static net.flexmojos.oss.plugin.common.FlexClassifier.SIZE_REPORT;
-import static net.flexmojos.oss.plugin.common.FlexExtension.ANE;
-import static net.flexmojos.oss.plugin.common.FlexExtension.CSS;
-import static net.flexmojos.oss.plugin.common.FlexExtension.RB_SWC;
-import static net.flexmojos.oss.plugin.common.FlexExtension.SWC;
-import static net.flexmojos.oss.plugin.common.FlexExtension.SWF;
-import static net.flexmojos.oss.plugin.common.FlexExtension.SWZ;
-import static net.flexmojos.oss.plugin.common.FlexExtension.XML;
-import static net.flexmojos.oss.plugin.common.FlexScopes.CACHING;
-import static net.flexmojos.oss.plugin.common.FlexScopes.COMPILE;
-import static net.flexmojos.oss.plugin.common.FlexScopes.EXTERNAL;
-import static net.flexmojos.oss.plugin.common.FlexScopes.INTERNAL;
-import static net.flexmojos.oss.plugin.common.FlexScopes.MERGED;
-import static net.flexmojos.oss.plugin.common.FlexScopes.RSL;
-import static net.flexmojos.oss.util.PathUtil.files;
-import static net.flexmojos.oss.util.PathUtil.pathsList;
-
-import java.awt.GraphicsEnvironment;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.Reader;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Properties;
-import java.util.Set;
-
+import net.flexmojos.oss.compatibilitykit.FlexCompatibility;
+import net.flexmojos.oss.compatibilitykit.FlexMojo;
+import net.flexmojos.oss.compatibilitykit.VersionUtils;
+import net.flexmojos.oss.compiler.*;
+import net.flexmojos.oss.compiler.command.Result;
+import net.flexmojos.oss.license.LicenseCalculator;
+import net.flexmojos.oss.plugin.AbstractMavenMojo;
+import net.flexmojos.oss.plugin.RuntimeMavenResolutionException;
+import net.flexmojos.oss.plugin.common.FlexScopes;
+import net.flexmojos.oss.plugin.compiler.attributes.*;
+import net.flexmojos.oss.plugin.compiler.lazyload.Cacheable;
+import net.flexmojos.oss.plugin.utilities.ConfigurationResolver;
+import net.flexmojos.oss.plugin.utilities.MavenUtils;
+import net.flexmojos.oss.util.PathUtil;
 import org.apache.commons.io.filefilter.AgeFileFilter;
 import org.apache.commons.io.filefilter.TrueFileFilter;
 import org.apache.maven.artifact.Artifact;
@@ -79,48 +44,28 @@ import org.codehaus.plexus.util.IOUtil;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.codehaus.plexus.util.xml.Xpp3DomBuilder;
 import org.hamcrest.Matcher;
-import net.flexmojos.oss.compatibilitykit.FlexCompatibility;
-import net.flexmojos.oss.compatibilitykit.FlexMojo;
-import net.flexmojos.oss.compatibilitykit.VersionUtils;
-import net.flexmojos.oss.compiler.IApplicationDomain;
-import net.flexmojos.oss.compiler.ICompcConfiguration;
-import net.flexmojos.oss.compiler.ICompilerConfiguration;
-import net.flexmojos.oss.compiler.IDefaultScriptLimits;
-import net.flexmojos.oss.compiler.IDefaultSize;
-import net.flexmojos.oss.compiler.IDefine;
-import net.flexmojos.oss.compiler.IExtension;
-import net.flexmojos.oss.compiler.IExtensionsConfiguration;
-import net.flexmojos.oss.compiler.IFontsConfiguration;
-import net.flexmojos.oss.compiler.IFrame;
-import net.flexmojos.oss.compiler.IFramesConfiguration;
-import net.flexmojos.oss.compiler.ILicense;
-import net.flexmojos.oss.compiler.ILicensesConfiguration;
-import net.flexmojos.oss.compiler.ILocalizedDescription;
-import net.flexmojos.oss.compiler.ILocalizedTitle;
-import net.flexmojos.oss.compiler.IMetadataConfiguration;
-import net.flexmojos.oss.compiler.IMxmlConfiguration;
-import net.flexmojos.oss.compiler.INamespace;
-import net.flexmojos.oss.compiler.INamespacesConfiguration;
-import net.flexmojos.oss.compiler.IRuntimeSharedLibraryPath;
-import net.flexmojos.oss.compiler.IRuntimeSharedLibrarySettingsConfiguration;
-import net.flexmojos.oss.compiler.command.Result;
-import net.flexmojos.oss.license.LicenseCalculator;
-import net.flexmojos.oss.plugin.AbstractMavenMojo;
-import net.flexmojos.oss.plugin.RuntimeMavenResolutionException;
-import net.flexmojos.oss.plugin.common.FlexScopes;
-import net.flexmojos.oss.plugin.compiler.attributes.MavenArtifact;
-import net.flexmojos.oss.plugin.compiler.attributes.MavenDefaultScriptLimits;
-import net.flexmojos.oss.plugin.compiler.attributes.MavenDefaultSize;
-import net.flexmojos.oss.plugin.compiler.attributes.MavenExtension;
-import net.flexmojos.oss.plugin.compiler.attributes.MavenFontsConfiguration;
-import net.flexmojos.oss.plugin.compiler.attributes.MavenFrame;
-import net.flexmojos.oss.plugin.compiler.attributes.MavenMetadataConfiguration;
-import net.flexmojos.oss.plugin.compiler.attributes.MavenNamespace;
-import net.flexmojos.oss.plugin.compiler.attributes.MavenRuntimeException;
-import net.flexmojos.oss.plugin.compiler.lazyload.Cacheable;
-import net.flexmojos.oss.plugin.utilities.ConfigurationResolver;
-import net.flexmojos.oss.plugin.utilities.MavenUtils;
-import net.flexmojos.oss.util.PathUtil;
+
+import java.awt.*;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.Reader;
+import java.util.*;
+import java.util.List;
+import java.util.Map.Entry;
+
+import static java.util.Arrays.asList;
+import static java.util.Collections.emptyMap;
+import static net.flexmojos.oss.matcher.artifact.ArtifactMatcher.*;
+import static net.flexmojos.oss.plugin.common.FlexClassifier.*;
+import static net.flexmojos.oss.plugin.common.FlexExtension.*;
+import static net.flexmojos.oss.plugin.common.FlexScopes.*;
+import static net.flexmojos.oss.util.PathUtil.files;
+import static net.flexmojos.oss.util.PathUtil.pathsList;
+import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.Matchers.nullValue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public abstract class AbstractFlexCompilerMojo<CFG, C extends AbstractFlexCompilerMojo<CFG, C>>
     extends AbstractMavenMojo
@@ -138,7 +83,7 @@ public abstract class AbstractFlexCompilerMojo<CFG, C extends AbstractFlexCompil
      * <p>
      * Equivalent to -compiler.accessible
      * </p>
-     * 
+     *
      * @parameter expression="${flex.accessible}"
      */
     private Boolean accessible;
@@ -149,7 +94,7 @@ public abstract class AbstractFlexCompilerMojo<CFG, C extends AbstractFlexCompil
      * <p>
      * Equivalent to -compiler.actionscript-file-encoding
      * </p>
-     * 
+     *
      * @parameter expression="${flex.actionscriptFileEncoding}"
      */
     private String actionscriptFileEncoding;
@@ -159,7 +104,7 @@ public abstract class AbstractFlexCompilerMojo<CFG, C extends AbstractFlexCompil
      * <p>
      * Equivalent to -compiler.adjust-opdebugline
      * </p>
-     * 
+     *
      * @parameter expression="${flex.adjustOpdebugline}"
      */
     private Boolean adjustOpdebugline;
@@ -173,7 +118,7 @@ public abstract class AbstractFlexCompilerMojo<CFG, C extends AbstractFlexCompil
      * <p>
      * Equivalent to -compiler.allow-duplicate-style-declaration
      * </p>
-     * 
+     *
      * @parameter expression="${flex.allowDuplicateDefaultStyleDeclarations}"
      */
     private Boolean allowDuplicateDefaultStyleDeclarations;
@@ -184,7 +129,7 @@ public abstract class AbstractFlexCompilerMojo<CFG, C extends AbstractFlexCompil
      * <p>
      * Equivalent to -compiler.allow-source-path-overlap
      * </p>
-     * 
+     *
      * @parameter expression="${flex.allowSourcePathOverlap}"
      */
     private Boolean allowSourcePathOverlap;
@@ -196,7 +141,7 @@ public abstract class AbstractFlexCompilerMojo<CFG, C extends AbstractFlexCompil
      * Equivalent to -runtime-shared-library-settings.application-domains
      * </p>
      * Usage:
-     * 
+     *
      * <pre>
      * &lt;applicationDomains&gt;
      *   &lt;applicationDomain&gt;
@@ -209,7 +154,7 @@ public abstract class AbstractFlexCompilerMojo<CFG, C extends AbstractFlexCompil
      *   &lt;/applicationDomain&gt;
      * &lt;/applicationDomains&gt;
      * </pre>
-     * 
+     *
      * @parameter
      */
     private MavenApplicationDomains[] applicationDomains;
@@ -219,7 +164,7 @@ public abstract class AbstractFlexCompilerMojo<CFG, C extends AbstractFlexCompil
      * <p>
      * Equivalent to -compiler.archive-classes-and-assets
      * </p>
-     * 
+     *
      * @parameter expression="${flex.archiveClassesAndAssets}"
      */
     private Boolean archiveClassesAndAssets;
@@ -230,7 +175,7 @@ public abstract class AbstractFlexCompilerMojo<CFG, C extends AbstractFlexCompil
      * <p>
      * Equivalent to -compiler.as3
      * </p>
-     * 
+     *
      * @parameter expression="${flex.as3}"
      */
     private Boolean as3;
@@ -240,7 +185,7 @@ public abstract class AbstractFlexCompilerMojo<CFG, C extends AbstractFlexCompil
      * <p>
      * Equivalent to -benchmark
      * </p>
-     * 
+     *
      * @parameter expression="${flex.benchmark}"
      */
     protected Boolean benchmark;
@@ -251,7 +196,7 @@ public abstract class AbstractFlexCompilerMojo<CFG, C extends AbstractFlexCompil
      * Equivalent to -benchmark-compiler-details
      * </p>
      * 0 = none, 1 = light, 5 = verbose
-     * 
+     *
      * @parameter expression="${flex.benchmarkCompilerDetails}"
      */
     private Integer benchmarkCompilerDetails;
@@ -262,14 +207,14 @@ public abstract class AbstractFlexCompilerMojo<CFG, C extends AbstractFlexCompil
      * Equivalent to -benchmark-time-filter
      * </p>
      * min time of units to log in ms
-     * 
+     *
      * @parameter expression="${flex.benchmarkTimeFilter}"
      */
     private Long benchmarkTimeFilter;
 
     /**
      * Classifier to add to the artifact generated. If given, the artifact will be an attachment instead.
-     * 
+     *
      * @parameter expression="${flex.classifier}"
      */
     protected String classifier;
@@ -279,7 +224,7 @@ public abstract class AbstractFlexCompilerMojo<CFG, C extends AbstractFlexCompil
      * <p>
      * Equivalent to -compiler.mxml.compatibility-version
      * </p>
-     * 
+     *
      * @parameter expression="${flex.compatibilityVersion}"
      */
     private String compatibilityVersion;
@@ -297,14 +242,14 @@ public abstract class AbstractFlexCompilerMojo<CFG, C extends AbstractFlexCompil
      * -compiler.show-shadowed-device-font-warnings, -compiler.show-unused-type-selector-warnings and -compiler.warn-*
      * </p>
      * Usage:
-     * 
+     *
      * <pre>
      * &lt;compilerWarnings&gt;
      *   &lt;show-actionscript-warnings&gt;true&lt;/show-actionscript-warnings&gt;
      *   &lt;warn-bad-nan-comparison&gt;false&lt;/warn-bad-nan-comparison&gt;
      * &lt;/compilerWarnings&gt;
      * </pre>
-     * 
+     *
      * @parameter
      */
     private final Map<String, String> compilerWarnings = new LinkedHashMap<String, String>();
@@ -315,7 +260,7 @@ public abstract class AbstractFlexCompilerMojo<CFG, C extends AbstractFlexCompil
      * Equivalent to -compiler.source-path
      * </p>
      * List of path elements that form the roots of ActionScript class
-     * 
+     *
      * @parameter expression="${project.compileSourceRoots}"
      * @required
      * @readonly
@@ -327,7 +272,7 @@ public abstract class AbstractFlexCompilerMojo<CFG, C extends AbstractFlexCompil
      * <p>
      * Equivalent to -compiler.compress
      * </p>
-     * 
+     *
      * @parameter expression="${flex.compress}"
      */
     private Boolean compress;
@@ -338,7 +283,7 @@ public abstract class AbstractFlexCompilerMojo<CFG, C extends AbstractFlexCompil
      * Equivalent to -compiler.conservative
      * </p>
      * compiler algorithm settings
-     * 
+     *
      * @parameter expression="${flex.conservative}"
      */
     private Boolean conservative;
@@ -348,7 +293,7 @@ public abstract class AbstractFlexCompilerMojo<CFG, C extends AbstractFlexCompil
      * <p>
      * Equivalent to -compiler.context-root
      * </p>
-     * 
+     *
      * @parameter expression="${flex.contextRoot}"
      */
     private String contextRoot;
@@ -358,7 +303,7 @@ public abstract class AbstractFlexCompilerMojo<CFG, C extends AbstractFlexCompil
      * <p>
      * Equivalent to -compiler.debug
      * </p>
-     * 
+     *
      * @parameter expression="${flex.debug}"
      */
     private Boolean debug;
@@ -368,7 +313,7 @@ public abstract class AbstractFlexCompilerMojo<CFG, C extends AbstractFlexCompil
      * <p>
      * Equivalent to -debug-password
      * </p>
-     * 
+     *
      * @parameter expression="${flex.debugPassword}"
      */
     protected String debugPassword;
@@ -378,7 +323,7 @@ public abstract class AbstractFlexCompilerMojo<CFG, C extends AbstractFlexCompil
      * <p>
      * Equivalent to -default-background-color
      * </p>
-     * 
+     *
      * @parameter expression="${flex.defaultBackgroundColor}"
      */
     private Integer defaultBackgroundColor;
@@ -388,14 +333,14 @@ public abstract class AbstractFlexCompilerMojo<CFG, C extends AbstractFlexCompil
      * <p>
      * Equivalent to -default-frame-rate
      * </p>
-     * 
+     *
      * @parameter expression="${flex.defaultFrameRate}"
      */
     private Integer defaultFrameRate;
 
     /**
      * Default value of resourceBundleList used when it is not defined
-     * 
+     *
      * @parameter default-value= "${project.build.directory}/${project.build.finalName}-rb.properties"
      * @readonly
      */
@@ -407,14 +352,14 @@ public abstract class AbstractFlexCompilerMojo<CFG, C extends AbstractFlexCompil
      * Equivalent to -default-script-limits
      * </p>
      * Usage:
-     * 
+     *
      * <pre>
      * &lt;defaultScriptLimits&gt;
      *   &lt;maxExecutionTime&gt;???&lt;/maxExecutionTime&gt;
      *   &lt;maxRecursionDepth&gt;???&lt;/maxRecursionDepth&gt;
      * &lt;/defaultScriptLimits&gt;
      * </pre>
-     * 
+     *
      * @parameter
      */
     private MavenDefaultScriptLimits defaultScriptLimits;
@@ -425,14 +370,14 @@ public abstract class AbstractFlexCompilerMojo<CFG, C extends AbstractFlexCompil
      * Equivalent to -compiler.defaults-css-url
      * </p>
      * Usage:
-     * 
+     *
      * <pre>
      * &lt;defaultsCssFiles&gt;
      *   &lt;defaultsCssFile&gt;???&lt;/defaultsCssFile&gt;
      *   &lt;defaultsCssFile&gt;???&lt;/defaultsCssFile&gt;
      * &lt;/defaultsCssFiles&gt;
      * </pre>
-     * 
+     *
      * @parameter
      */
     private File[] defaultsCssFiles;
@@ -443,7 +388,7 @@ public abstract class AbstractFlexCompilerMojo<CFG, C extends AbstractFlexCompil
      * <p>
      * Equivalent to -compiler.defaults-css-url
      * </p>
-     * 
+     *
      * @parameter expression="${flex.defaultsCssUrl}"
      */
     private String defaultsCssUrl;
@@ -454,14 +399,14 @@ public abstract class AbstractFlexCompilerMojo<CFG, C extends AbstractFlexCompil
      * Equivalent to -default-size
      * </p>
      * Usage:
-     * 
+     *
      * <pre>
      * &lt;defaultSize&gt;
      *   &lt;height&gt;???&lt;/height&gt;
      *   &lt;width&gt;???&lt;/width&gt;
      * &lt;/defaultSize&gt;
      * </pre>
-     * 
+     *
      * @parameter
      */
     private MavenDefaultSize defaultSize;
@@ -473,7 +418,7 @@ public abstract class AbstractFlexCompilerMojo<CFG, C extends AbstractFlexCompil
      * Equivalent to -compiler.define
      * </p>
      * Usage:
-     * 
+     *
      * <pre>
      * &lt;defines&gt;
      *   &lt;property&gt;
@@ -486,7 +431,7 @@ public abstract class AbstractFlexCompilerMojo<CFG, C extends AbstractFlexCompil
      *   &lt;/property&gt;
      * &lt;/defines&gt;
      * </pre>
-     * 
+     *
      * @parameter
      */
     private Properties defines;
@@ -496,7 +441,7 @@ public abstract class AbstractFlexCompilerMojo<CFG, C extends AbstractFlexCompil
      * <p>
      * Equivalent to -compiler.disable-incremental-optimizations
      * </p>
-     * 
+     *
      * @parameter expression="${flex.disableIncrementalOptimizations}"
      */
     private Boolean disableIncrementalOptimizations;
@@ -506,7 +451,7 @@ public abstract class AbstractFlexCompilerMojo<CFG, C extends AbstractFlexCompil
      * <p>
      * Equivalent to -compiler.doc
      * </p>
-     * 
+     *
      * @parameter expression="${flex.doc}"
      */
     private Boolean doc;
@@ -516,7 +461,7 @@ public abstract class AbstractFlexCompilerMojo<CFG, C extends AbstractFlexCompil
      * <p>
      * Equivalent to -dump-config
      * </p>
-     * 
+     *
      * @parameter expression="${flex.dumpConfig}"
      */
     private boolean dumpConfigAttach;
@@ -526,7 +471,7 @@ public abstract class AbstractFlexCompilerMojo<CFG, C extends AbstractFlexCompil
      * <p>
      * Equivalent to -compiler.enable-runtime-design-layers
      * </p>
-     * 
+     *
      * @parameter expression="${flex.enableRuntimeDesignLayers}"
      */
     private Boolean enableRuntimeDesignLayers;
@@ -536,7 +481,7 @@ public abstract class AbstractFlexCompilerMojo<CFG, C extends AbstractFlexCompil
      * <p>
      * Equivalent to -compiler.enable-swc-version-filtering
      * </p>
-     * 
+     *
      * @parameter expression="${flex.enableSwcVersionFiltering}"
      */
     private Boolean enableSwcVersionFiltering;
@@ -547,7 +492,7 @@ public abstract class AbstractFlexCompilerMojo<CFG, C extends AbstractFlexCompil
      * <p>
      * Equivalent to -compiler.es
      * </p>
-     * 
+     *
      * @parameter expression="${flex.es}"
      */
     private Boolean es;
@@ -558,7 +503,7 @@ public abstract class AbstractFlexCompilerMojo<CFG, C extends AbstractFlexCompil
      * Equivalent to -compiler.extensions.extension
      * </p>
      * Usage:
-     * 
+     *
      * <pre>
      * &lt;extensions&gt;
      *   &lt;extension&gt;
@@ -575,7 +520,7 @@ public abstract class AbstractFlexCompilerMojo<CFG, C extends AbstractFlexCompil
      *   &lt;/extension&gt;
      * &lt;/extensions&gt;
      * </pre>
-     * 
+     *
      * @parameter
      */
     private MavenExtension[] extensions;
@@ -586,21 +531,21 @@ public abstract class AbstractFlexCompilerMojo<CFG, C extends AbstractFlexCompil
      * Equivalent to -externs
      * </p>
      * Usage:
-     * 
+     *
      * <pre>
      * &lt;externs&gt;
      *   &lt;extern&gt;???&lt;/extern&gt;
      *   &lt;extern&gt;???&lt;/extern&gt;
      * &lt;/externs&gt;
      * </pre>
-     * 
+     *
      * @parameter
      */
     private String[] externs;
 
     /**
      * The name of the compiled file
-     * 
+     *
      * @parameter default-name="${project.build.finalName}" expression="${flex.finalName}"
      */
     protected String finalName;
@@ -611,7 +556,7 @@ public abstract class AbstractFlexCompilerMojo<CFG, C extends AbstractFlexCompil
      * Equivalent to -compiler.fonts.*
      * </p>
      * Usage:
-     * 
+     *
      * <pre>
      * &lt;fonts&gt;
      *   &lt;advancedAntiAliasing&gt;true&lt;/advancedAntiAliasing&gt;
@@ -627,7 +572,7 @@ public abstract class AbstractFlexCompilerMojo<CFG, C extends AbstractFlexCompil
      *   &lt;maxGlyphsPerFace&gt;1000&lt;/maxGlyphsPerFace&gt;
      * &lt;/fonts&gt;
      * </pre>
-     * 
+     *
      * @parameter
      */
     private MavenFontsConfiguration fonts;
@@ -637,7 +582,7 @@ public abstract class AbstractFlexCompilerMojo<CFG, C extends AbstractFlexCompil
      * <p>
      * Equivalent to -runtime-shared-library-settings.force-rsls
      * </p>
-     * 
+     *
      * @parameter
      */
     private String[] forceRsls;
@@ -648,7 +593,7 @@ public abstract class AbstractFlexCompilerMojo<CFG, C extends AbstractFlexCompil
      * Equivalent to -frames.frame
      * </p>
      * Usage:
-     * 
+     *
      * <pre>
      * &lt;frames&gt;
      *   &lt;frame&gt;
@@ -660,7 +605,7 @@ public abstract class AbstractFlexCompilerMojo<CFG, C extends AbstractFlexCompil
      *   &lt;/frame&gt;
      * &lt;/frames&gt;
      * </pre>
-     * 
+     *
      * @parameter
      */
     private MavenFrame[] frames;
@@ -670,7 +615,7 @@ public abstract class AbstractFlexCompilerMojo<CFG, C extends AbstractFlexCompil
      * <p>
      * Equivalent to -framework
      * </p>
-     * 
+     *
      * @parameter expression="${flex.framework}"
      */
     private String framework;
@@ -680,7 +625,7 @@ public abstract class AbstractFlexCompilerMojo<CFG, C extends AbstractFlexCompil
      * <p>
      * Equivalent to -compiler.generate-abstract-syntax-tree
      * </p>
-     * 
+     *
      * @parameter expression="${flex.generateAbstractSyntaxTree}"
      */
     private Boolean generateAbstractSyntaxTree;
@@ -690,7 +635,7 @@ public abstract class AbstractFlexCompilerMojo<CFG, C extends AbstractFlexCompil
      * <p>
      * Equivalent to -generated-frame-loader
      * </p>
-     * 
+     *
      * @parameter expression="${flex.generateFrameLoader}"
      */
     private Boolean generateFrameLoader;
@@ -700,7 +645,7 @@ public abstract class AbstractFlexCompilerMojo<CFG, C extends AbstractFlexCompil
      * <p>
      * Equivalent to -compiler.headless-server
      * </p>
-     * 
+     *
      * @parameter expression="${flex.headlessServer}"
      */
     private Boolean headlessServer;
@@ -709,7 +654,7 @@ public abstract class AbstractFlexCompilerMojo<CFG, C extends AbstractFlexCompil
      * EXTREMELLY UN-ADVISIBLE. When true, flexmojos will check if the compiler and the framework versions match.
      * Usually, you must use the same compiler and framework versions. Set this to true to avoid this check. EXTREMELLY
      * UN-ADVISIBLE.
-     * 
+     *
      * @parameter default-value="false"
      *            expression="${flex.iKnowWhatImDoingPleaseBreakMyBuildIwontBlameFlexmojosForStopWorking}"
      */
@@ -720,7 +665,7 @@ public abstract class AbstractFlexCompilerMojo<CFG, C extends AbstractFlexCompil
      * <p>
      * Equivalent to -include-inheritance-dependencies-only
      * </p>
-     * 
+     *
      * @parameter expression="${flex.includeInheritanceDependenciesOnly}"
      */
     private Boolean includeInheritanceDependenciesOnly;
@@ -731,14 +676,14 @@ public abstract class AbstractFlexCompilerMojo<CFG, C extends AbstractFlexCompil
      * Equivalent to -include-resource-bundles
      * </p>
      * Usage:
-     * 
+     *
      * <pre>
      * &lt;includeResourceBundles&gt;
      *   &lt;rb&gt;SharedResources&lt;/rb&gt;
      *   &lt;rb&gt;Collections&lt;/rb&gt;
      * &lt;/includeResourceBundles&gt;
      * </pre>
-     * 
+     *
      * @parameter
      */
     protected List<String> includeResourceBundles;
@@ -749,14 +694,14 @@ public abstract class AbstractFlexCompilerMojo<CFG, C extends AbstractFlexCompil
      * Equivalent to -includes
      * </p>
      * Usage:
-     * 
+     *
      * <pre>
      * &lt;includes&gt;
      *   &lt;include&gt;???&lt;/include&gt;
      *   &lt;include&gt;???&lt;/include&gt;
      * &lt;/includes&gt;
      * </pre>
-     * 
+     *
      * @parameter
      */
     private String[] includes;
@@ -766,7 +711,7 @@ public abstract class AbstractFlexCompilerMojo<CFG, C extends AbstractFlexCompil
      * <p>
      * Equivalent to -compiler.incremental
      * </p>
-     * 
+     *
      * @parameter expression="${flex.incremental}"
      */
     private Boolean incremental;
@@ -777,7 +722,7 @@ public abstract class AbstractFlexCompilerMojo<CFG, C extends AbstractFlexCompil
      * <p>
      * Equivalent to -compiler.isolate-styles
      * </p>
-     * 
+     *
      * @parameter expression="${flex.isolateStyles}"
      */
     private Boolean isolateStyles;
@@ -787,7 +732,7 @@ public abstract class AbstractFlexCompilerMojo<CFG, C extends AbstractFlexCompil
      * <p>
      * Equivalent to -compiler.java-profiler-class
      * </p>
-     * 
+     *
      * @parameter expression="${flex.javaProfilerClass}"
      */
     private String javaProfilerClass;
@@ -797,7 +742,7 @@ public abstract class AbstractFlexCompilerMojo<CFG, C extends AbstractFlexCompil
      * <p>
      * Equivalent to -compiler.keep-all-type-selectors
      * </p>
-     * 
+     *
      * @parameter expression="${flex.keepAllTypeSelectors}"
      */
     private Boolean keepAllTypeSelectors;
@@ -808,14 +753,14 @@ public abstract class AbstractFlexCompilerMojo<CFG, C extends AbstractFlexCompil
      * Equivalent to -compiler.keep-as3-metadata
      * </p>
      * Usage:
-     * 
+     *
      * <pre>
      * &lt;keepAs3Metadatas&gt;
      *   &lt;keepAs3Metadata&gt;Bindable&lt;/keepAs3Metadata&gt;
      *   &lt;keepAs3Metadata&gt;Events&lt;/keepAs3Metadata&gt;
      * &lt;/keepAs3Metadatas&gt;
      * </pre>
-     * 
+     *
      * @parameter
      */
     private String[] keepAs3Metadatas;
@@ -825,7 +770,7 @@ public abstract class AbstractFlexCompilerMojo<CFG, C extends AbstractFlexCompil
      * <p>
      * Equivalent to -compiler.keep-generated-actionscript
      * </p>
-     * 
+     *
      * @parameter expression="${flex.keepGeneratedActionscript}"
      */
     private Boolean keepGeneratedActionscript;
@@ -835,7 +780,7 @@ public abstract class AbstractFlexCompilerMojo<CFG, C extends AbstractFlexCompil
      * <p>
      * Equivalent to -compiler.keep-generated-signatures
      * </p>
-     * 
+     *
      * @parameter expression="${flex.keepGeneratedSignatures}"
      */
     private Boolean keepGeneratedSignatures;
@@ -845,7 +790,7 @@ public abstract class AbstractFlexCompilerMojo<CFG, C extends AbstractFlexCompil
      * <p>
      * Equivalent to -lazy-init
      * </p>
-     * 
+     *
      * @parameter expression="${flex.lazyInit}"
      */
     private Boolean lazyInit;
@@ -858,7 +803,7 @@ public abstract class AbstractFlexCompilerMojo<CFG, C extends AbstractFlexCompil
     /**
      * When true flexmojos will automatically lookup for licenses folling this documentation
      * http://livedocs.adobe.com/flex/3/html/help.html?content=05B_Security_03 .html#140756
-     * 
+     *
      * @parameter default-value="true" expression="${flex.licenseLocalLookup}"
      */
     private boolean licenseLocalLookup;
@@ -869,20 +814,20 @@ public abstract class AbstractFlexCompilerMojo<CFG, C extends AbstractFlexCompil
      * Equivalent to -licenses.license
      * </p>
      * Usage:
-     * 
+     *
      * <pre>
      * &lt;licenses&gt;
      *   &lt;flexbuilder3&gt;xxxx-xxxx-xxxx-xxxx&lt;/flexbuilder3&gt;
      * &lt;/licenses&gt;
      * </pre>
-     * 
+     *
      * @parameter
      */
     private Map<String, String> licenses;
 
     /**
      * When true the link report will be attached to maven reactor
-     * 
+     *
      * @parameter expression="${flex.linkReportAttach}"
      */
     private boolean linkReportAttach;
@@ -893,7 +838,7 @@ public abstract class AbstractFlexCompilerMojo<CFG, C extends AbstractFlexCompil
      * Equivalent to -load-config
      * </p>
      * Overwrite loadConfigs when defined!
-     * 
+     *
      * @parameter expression="${flex.loadConfig}"
      */
     private File loadConfig;
@@ -904,14 +849,14 @@ public abstract class AbstractFlexCompilerMojo<CFG, C extends AbstractFlexCompil
      * Equivalent to -load-config
      * </p>
      * Usage:
-     * 
+     *
      * <pre>
      * &lt;loadConfigs&gt;
      *   &lt;loadConfig&gt;???&lt;/loadConfig&gt;
      *   &lt;loadConfig&gt;???&lt;/loadConfig&gt;
      * &lt;/loadConfigs&gt;
      * </pre>
-     * 
+     *
      * @parameter
      */
     private File[] loadConfigs;
@@ -920,7 +865,7 @@ public abstract class AbstractFlexCompilerMojo<CFG, C extends AbstractFlexCompil
      * Sets a list of artifacts to omit from linking when building an application. This is equivalent to using the
      * <code>load-externs</code> option of the mxmlc or compc compilers.<BR>
      * Usage:
-     * 
+     *
      * <pre>
      * &lt;loadExterns&gt;
      *   &lt;loadExtern&gt;
@@ -935,7 +880,7 @@ public abstract class AbstractFlexCompilerMojo<CFG, C extends AbstractFlexCompil
      *   &lt;/loadExtern&gt;
      * &lt;/loadExterns&gt;
      * </pre>
-     * 
+     *
      * @deprecated use dependency with type "xml" and classifier "link-report"
      * @parameter
      */
@@ -948,20 +893,20 @@ public abstract class AbstractFlexCompilerMojo<CFG, C extends AbstractFlexCompil
      * Equivalent to -compiler.locale
      * </p>
      * Usage:
-     * 
+     *
      * <pre>
      * &lt;localesCompiled&gt;
      *   &lt;locale&gt;en_US&lt;/locale&gt;
      * &lt;/localesCompiled&gt;
      * </pre>
-     * 
+     *
      * @parameter
      */
     private String[] localesCompiled;
 
     /**
      * Relative path where the locales should be created
-     * 
+     *
      * @parameter expression="${flex.localesOutputPath}"
      */
     private String localesOutputPath;
@@ -972,24 +917,24 @@ public abstract class AbstractFlexCompilerMojo<CFG, C extends AbstractFlexCompil
      * No equivalent parameter
      * </p>
      * Usage:
-     * 
+     *
      * <pre>
      * &lt;localesRuntime&gt;
      *   &lt;locale&gt;en_US&lt;/locale&gt;
      * &lt;/localesRuntime&gt;
      * </pre>
-     * 
+     *
      * @parameter
      */
     private String[] localesRuntime;
 
     /**
      * Define the base path to locate resouce bundle files Accept some special tokens:
-     * 
+     *
      * <pre>
      * {locale}     - replace by locale name
      * </pre>
-     * 
+     *
      * @parameter default-value="${basedir}/src/main/locales/{locale}"
      */
     protected File localesSourcePath;
@@ -999,7 +944,7 @@ public abstract class AbstractFlexCompilerMojo<CFG, C extends AbstractFlexCompil
      * <p>
      * Equivalent to -compiler.memory-usage-factor
      * </p>
-     * 
+     *
      * @parameter expression="${flex.memoryUsageFactor}"
      */
     private Integer memoryUsageFactor;
@@ -1010,7 +955,7 @@ public abstract class AbstractFlexCompilerMojo<CFG, C extends AbstractFlexCompil
      * Equivalent to: -metadata.*
      * </p>
      * Usage:
-     * 
+     *
      * <pre>
      * &lt;metadata&gt;
      *   &lt;contributors&gt;
@@ -1036,7 +981,7 @@ public abstract class AbstractFlexCompilerMojo<CFG, C extends AbstractFlexCompil
      *   &lt;title&gt;???&lt;/title&gt;
      * &lt;/metadata&gt;
      * </pre>
-     * 
+     *
      * @parameter
      */
     private MavenMetadataConfiguration metadata;
@@ -1047,7 +992,7 @@ public abstract class AbstractFlexCompilerMojo<CFG, C extends AbstractFlexCompil
      * <p>
      * Equivalent to -compiler.mxml.minimum-supported-version
      * </p>
-     * 
+     *
      * @parameter expression="${flex.minimumSupportedVersion}"
      */
     private String minimumSupportedVersion;
@@ -1057,7 +1002,7 @@ public abstract class AbstractFlexCompilerMojo<CFG, C extends AbstractFlexCompil
      * <p>
      * Equivalent to -compiler.mobile
      * </p>
-     * 
+     *
      * @parameter expression="${flex.mobile}"
      */
     private Boolean mobile;
@@ -1068,7 +1013,7 @@ public abstract class AbstractFlexCompilerMojo<CFG, C extends AbstractFlexCompil
      * Equivalent to -compiler.namespaces.namespace
      * </p>
      * Usage:
-     * 
+     *
      * <pre>
      * &lt;namespaces&gt;
      *   &lt;namespace&gt;
@@ -1077,7 +1022,7 @@ public abstract class AbstractFlexCompilerMojo<CFG, C extends AbstractFlexCompil
      *   &lt;/namespace&gt;
      * &lt;/namespaces&gt;
      * </pre>
-     * 
+     *
      * @parameter
      */
     private MavenNamespace[] namespaces;
@@ -1087,7 +1032,7 @@ public abstract class AbstractFlexCompilerMojo<CFG, C extends AbstractFlexCompil
      * <p>
      * Equivalent to -compiler.omit-trace-statements
      * </p>
-     * 
+     *
      * @parameter expression="${flex.omitTraceStatements}"
      */
     private Boolean omitTraceStatements;
@@ -1097,16 +1042,16 @@ public abstract class AbstractFlexCompilerMojo<CFG, C extends AbstractFlexCompil
      * <p>
      * Equivalent to -compiler.optimize
      * </p>
-     * 
+     *
      * @parameter expression="${flex.optimize}"
      */
     private Boolean optimize;
 
     /**
-     * policyFileUrls array of policy file URLs. Each entry in the rslUrls array must have a corresponding entry in this
+     * policyFileUrls array of policy file URLs. Each entry in the primaryRslUrls array must have a corresponding entry in this
      * array. A policy file may be needed in order to allow the player to read an RSL from another domain. If a policy
      * file is not required, then set it to an empty string. Accept some special tokens:
-     * 
+     *
      * <pre>
      * {contextRoot}        - replace by defined context root
      * {groupId}            - replace by library groupId
@@ -1114,19 +1059,19 @@ public abstract class AbstractFlexCompilerMojo<CFG, C extends AbstractFlexCompil
      * {version}            - replace by library version
      * {extension}          - replace by library extension swf or swz
      * </pre>
-     * 
+     *
      * <BR>
      * Usage:
-     * 
+     *
      * <pre>
      * &lt;policyFileUrls&gt;
      *   &lt;url&gt;/{contextRoot}/rsl/policy-{artifactId}-{version}.xml&lt;/url&gt;
      * &lt;/policyFileUrls&gt;
      * </pre>
-     * 
+     *
      * @parameter
      */
-    private String[] policyFileUrls;
+    private Map<String, String> policyFileUrls;
 
     /**
      * Specifies the default value for the Application's preloader attribute. If not specified, the default preloader
@@ -1135,7 +1080,7 @@ public abstract class AbstractFlexCompilerMojo<CFG, C extends AbstractFlexCompil
      * <p>
      * Equivalent to -compiler.preloader
      * </p>
-     * 
+     *
      * @parameter expression="${flex.preloader}"
      */
     private String preloader;
@@ -1145,7 +1090,7 @@ public abstract class AbstractFlexCompilerMojo<CFG, C extends AbstractFlexCompil
      * <p>
      * Equivalent to -compiler.mxml.qualified-type-selectors
      * </p>
-     * 
+     *
      * @parameter expression="${flex.qualifiedTypeSelectors}"
      */
     private Boolean qualifiedTypeSelectors;
@@ -1155,7 +1100,7 @@ public abstract class AbstractFlexCompilerMojo<CFG, C extends AbstractFlexCompil
      * <p>
      * Equivalent to -raw-metadata
      * </p>
-     * 
+     *
      * @parameter expression="${flex.rawMetadata}"
      */
     private String rawMetadata;
@@ -1165,7 +1110,7 @@ public abstract class AbstractFlexCompilerMojo<CFG, C extends AbstractFlexCompil
      * <p>
      * Equivalent to -remove-unused-rsls
      * </p>
-     * 
+     *
      * @parameter expression="${flex.removeUnusedRsls}"
      */
     private Boolean removeUnusedRsls;
@@ -1175,7 +1120,7 @@ public abstract class AbstractFlexCompilerMojo<CFG, C extends AbstractFlexCompil
      * <p>
      * Equivalent to -compiler.report-missing-required-skin-parts-as-warnings
      * </p>
-     * 
+     *
      * @parameter expression="${flex.reportMissingRequiredSkinPartsAsWarnings}"
      */
     private Boolean reportMissingRequiredSkinPartsAsWarnings;
@@ -1185,14 +1130,14 @@ public abstract class AbstractFlexCompilerMojo<CFG, C extends AbstractFlexCompil
      * <p>
      * Equivalent to -resource-bundle-list
      * </p>
-     * 
+     *
      * @parameter expression="${flex.resourceBundleList}"
      */
     private File resourceBundleList;
 
     /**
      * Pattern to be used for locales resurce bundles names generation. Accepts special tokens:
-     * 
+     *
      * <pre>
      * {locale}     - replace by locale name
      * {artifactId} - replace by artifactId
@@ -1200,7 +1145,7 @@ public abstract class AbstractFlexCompilerMojo<CFG, C extends AbstractFlexCompil
      * {version}    - replace by version
      * {classifier} - replace by classifier
      * </pre>
-     * 
+     *
      * @parameter
      */
     protected String resourceBundleNames;
@@ -1211,15 +1156,15 @@ public abstract class AbstractFlexCompilerMojo<CFG, C extends AbstractFlexCompil
      * <p>
      * Equivalent to -compiler.resource-hack
      * </p>
-     * 
+     *
      * @parameter expression="${flex.resourceHack}"
      */
     private Boolean resourceHack;
 
     /**
-     * rslUrls array of URLs. The first RSL URL in the list is the primary RSL. The remaining RSL URLs will only be
+     * primaryRslUrls array of URLs. The first RSL URL in the list is the primary RSL. The remaining RSL URLs will only be
      * loaded if the primary RSL fails to load. Accept some special tokens:
-     * 
+     *
      * <pre>
      * {contextRoot}        - replace by defined context root
      * {groupId}            - replace by library groupId
@@ -1229,26 +1174,53 @@ public abstract class AbstractFlexCompilerMojo<CFG, C extends AbstractFlexCompil
      * {classifier}         - replace by library classifier swf or swz
      * {hard-version}       - replace by library timestamped version (for -SNAPSHOT artifacts only and if timestamped is available)
      * </pre>
-     * 
+     *
      * default-value="/{contextRoot}/rsl/{artifactId}-{version}.{extension}" <BR>
      * Usage:
-     * 
+     *
      * <pre>
-     * &lt;rslUrls&gt;
+     * &lt;primaryRslUrls&gt;
      *   &lt;url&gt;/{contextRoot}/rsl/{artifactId}-{classifier}-{version}.{extension}&lt;/url&gt;
-     * &lt;/rslUrls&gt;
+     * &lt;/primaryRslUrls&gt;
      * </pre>
-     * 
+     * TODO document new structure
      * @parameter
      */
-    private String[] rslUrls;
+    private Map<String, String> primaryRslUrls;
+
+    /**
+     * primaryRslUrls array of URLs. The first RSL URL in the list is the primary RSL. The remaining RSL URLs will only be
+     * loaded if the primary RSL fails to load. Accept some special tokens:
+     *
+     * <pre>
+     * {contextRoot}        - replace by defined context root
+     * {groupId}            - replace by library groupId
+     * {artifactId}         - replace by library artifactId
+     * {version}            - replace by library version
+     * {extension}          - replace by library extension swf or swz
+     * {classifier}         - replace by library classifier swf or swz
+     * {hard-version}       - replace by library timestamped version (for -SNAPSHOT artifacts only and if timestamped is available)
+     * </pre>
+     *
+     * default-value="/{contextRoot}/rsl/{artifactId}-{version}.{extension}" <BR>
+     * Usage:
+     *
+     * <pre>
+     * &lt;primaryRslUrls&gt;
+     *   &lt;url&gt;/{contextRoot}/rsl/{artifactId}-{classifier}-{version}.{extension}&lt;/url&gt;
+     * &lt;/primaryRslUrls&gt;
+     * </pre>
+     * TODO document new structure
+     * @parameter
+     */
+    private Map<String, String> fallbackRslUrls;
 
     /**
      * Path to Flex Data Services configuration file
      * <p>
      * Equivalent to -compiler.services
      * </p>
-     * 
+     *
      * @parameter expression="${flex.services}"
      */
     private File services;
@@ -1258,7 +1230,7 @@ public abstract class AbstractFlexCompilerMojo<CFG, C extends AbstractFlexCompil
      * <p>
      * Equivalent to -warnings
      * </p>
-     * 
+     *
      * @parameter expression="${flex.showWarnings}"
      */
     private Boolean showWarnings;
@@ -1268,14 +1240,14 @@ public abstract class AbstractFlexCompilerMojo<CFG, C extends AbstractFlexCompil
      * <p>
      * Equivalent to -compiler.signature-directory
      * </p>
-     * 
+     *
      * @parameter expression="${flex.signatureDirectory}"
      */
     private File signatureDirectory;
 
     /**
      * When true the size report will be attached to maven reactor
-     * 
+     *
      * @parameter expression="${flex.sizeReportAttach}"
      */
     private boolean sizeReportAttach;
@@ -1285,7 +1257,7 @@ public abstract class AbstractFlexCompilerMojo<CFG, C extends AbstractFlexCompil
      * <p>
      * Equivalent to -static-link-runtime-shared-libraries
      * </p>
-     * 
+     *
      * @parameter expression="${flex.staticLinkRuntimeSharedLibraries}"
      */
     private Boolean staticLinkRuntimeSharedLibraries;
@@ -1295,7 +1267,7 @@ public abstract class AbstractFlexCompilerMojo<CFG, C extends AbstractFlexCompil
      * <p>
      * Equivalent to -compiler.strict
      * </p>
-     * 
+     *
      * @parameter expression="${flex.strict}"
      */
     private Boolean strict;
@@ -1305,7 +1277,7 @@ public abstract class AbstractFlexCompilerMojo<CFG, C extends AbstractFlexCompil
      * <p>
      * Equivalent to -swc-checksum
      * </p>
-     * 
+     *
      * @parameter expression="${flex.swcChecksum}"
      */
     private Boolean swcChecksum;
@@ -1315,7 +1287,7 @@ public abstract class AbstractFlexCompilerMojo<CFG, C extends AbstractFlexCompil
      * <p>
      * Equivalent to -swf-version
      * </p>
-     * 
+     *
      * @parameter expression="${flex.swfVersion}"
      */
     private Integer swfVersion;
@@ -1326,7 +1298,7 @@ public abstract class AbstractFlexCompilerMojo<CFG, C extends AbstractFlexCompil
      * <p>
      * Equivalent to -target-player
      * </p>
-     * 
+     *
      * @parameter expression="${flex.targetPlayer}"
      */
     private String targetPlayer;
@@ -1337,17 +1309,17 @@ public abstract class AbstractFlexCompilerMojo<CFG, C extends AbstractFlexCompil
      * Equivalent to -compiler.theme
      * </p>
      * Usage:
-     * 
+     *
      * <pre>
      * &lt;themes&gt;
      *    &lt;theme&gt;css/main.css&lt;/theme&gt;
      * &lt;/themes&gt;
      * </pre>
-     * 
+     *
      * If you are using SWC theme should be better keep it's version controlled, so is advised to use a dependency with
      * theme scope.<BR>
      * Like this:
-     * 
+     *
      * <pre>
      * &lt;dependency&gt;
      *   &lt;groupId&gt;com.acme&lt;/groupId&gt;
@@ -1365,7 +1337,7 @@ public abstract class AbstractFlexCompilerMojo<CFG, C extends AbstractFlexCompil
      * 3 - if you don't do either of the above steps, flexmojos will attempt to automatically include a theme for you
      * based on your dependencies. (if you depend upon mx.swc halo will be included, if you depend upon spark.swc -
      * spark.css theme will be included)
-     * 
+     *
      * @parameter
      */
     private String[] themes;
@@ -1376,7 +1348,7 @@ public abstract class AbstractFlexCompilerMojo<CFG, C extends AbstractFlexCompil
      * <p>
      * Equivalent to -tools-locale
      * </p>
-     * 
+     *
      * @parameter expression="${flex.toolsLocale}" default-value="en_US"
      */
     protected String toolsLocale;
@@ -1386,7 +1358,7 @@ public abstract class AbstractFlexCompilerMojo<CFG, C extends AbstractFlexCompil
      * <p>
      * Equivalent to -compiler.translation-format
      * </p>
-     * 
+     *
      * @parameter expression="${flex.translationFormat}"
      */
     private String translationFormat;
@@ -1396,7 +1368,7 @@ public abstract class AbstractFlexCompilerMojo<CFG, C extends AbstractFlexCompil
      * <p>
      * Equivalent to -use-direct-blit
      * </p>
-     * 
+     *
      * @parameter expression="${flex.useDirectBlit}"
      */
     private Boolean useDirectBlit;
@@ -1406,7 +1378,7 @@ public abstract class AbstractFlexCompilerMojo<CFG, C extends AbstractFlexCompil
      * <p>
      * Equivalent to -compiler.use-gpu
      * </p>
-     * 
+     *
      * @parameter expression="${flex.useGpu}"
      */
     private Boolean useGpu;
@@ -1416,7 +1388,7 @@ public abstract class AbstractFlexCompilerMojo<CFG, C extends AbstractFlexCompil
      * <p>
      * Equivalent to -use-network
      * </p>
-     * 
+     *
      * @parameter expression="${flex.useNetwork}"
      */
     private Boolean useNetwork;
@@ -1426,7 +1398,7 @@ public abstract class AbstractFlexCompilerMojo<CFG, C extends AbstractFlexCompil
      * <p>
      * Equivalent to -compiler.use-resource-bundle-metadata
      * </p>
-     * 
+     *
      * @parameter expression="${flex.useResourceBundleMetadata}"
      */
     private Boolean useResourceBundleMetadata;
@@ -1436,7 +1408,7 @@ public abstract class AbstractFlexCompilerMojo<CFG, C extends AbstractFlexCompil
      * <p>
      * Equivalent to -compiler.verbose-stacktraces
      * </p>
-     * 
+     *
      * @parameter expression="${flex.verboseStacktraces}"
      */
     private Boolean verboseStacktraces;
@@ -1446,7 +1418,7 @@ public abstract class AbstractFlexCompilerMojo<CFG, C extends AbstractFlexCompil
      * <p>
      * Equivalent to -verify-digests
      * </p>
-     * 
+     *
      * @parameter expression="${flex.verifyDigests}"
      */
     private Boolean verifyDigests;
@@ -1523,12 +1495,14 @@ public abstract class AbstractFlexCompilerMojo<CFG, C extends AbstractFlexCompil
         return rbSwc;
     }
 
-    protected Map<String, String> calculateRuntimeLibraryPath( Artifact artifact, String[] rslUrls,
-                                                               String[] policyFileUrls )
+    protected Map<String, String> calculateRuntimeLibraryPath( Artifact artifact,
+                                                               Map<String, String> rslUrls,
+                                                               Map<String, String> fallbackRslUrls,
+                                                               Map<String, String> policyFileUrls )
     {
         getLog().debug( "runtime libraries: id: " + artifact.getArtifactId() );
 
-        String scope = artifact.getScope();
+        final String scope = artifact.getScope();
         final String extension;
         if ( CACHING.equals( scope ) )
         {
@@ -1539,28 +1513,31 @@ public abstract class AbstractFlexCompilerMojo<CFG, C extends AbstractFlexCompil
             extension = SWF;
         }
 
-        Map<String, String> paths = new LinkedHashMap<String, String>();
-        for ( int i = 0; i < rslUrls.length; i++ )
-        {
-            String rsl = rslUrls[i];
-            String policy;
-            if ( i < policyFileUrls.length )
-            {
-                policy = policyFileUrls[i];
-            }
-            else
-            {
-                policy = null;
-            }
+        final Map<String, String> paths = new LinkedHashMap<String, String>();
+        final String primaryRslUrlTemplate = getUrlTemplate(artifact, rslUrls);
+        final String fallbackRslUrlTemplate = getUrlTemplate(artifact, fallbackRslUrls);
+        final String policyUrlTemplate = getUrlTemplate(artifact, policyFileUrls);
 
-            rsl = MavenUtils.interpolateRslUrl( rsl, artifact, extension, contextRoot );
-            policy = MavenUtils.interpolateRslUrl( policy, artifact, extension, contextRoot );
+        final String policyUrl = MavenUtils.interpolateRslUrl(policyUrlTemplate, artifact, extension, contextRoot);
+        final String rslUrl = MavenUtils.interpolateRslUrl(primaryRslUrlTemplate, artifact, extension, contextRoot);
+        final String fallbackRslUrl = MavenUtils.interpolateRslUrl(fallbackRslUrlTemplate, artifact, extension, contextRoot);
 
-            getLog().debug( "RSL url: " + rsl + " - " + policy );
-            paths.put( rsl, policy );
-        }
+
+        getLog().debug("RSL url: " + rslUrl + " - " + policyUrl);
+        paths.put(rslUrl, policyUrl);
+        paths.put(fallbackRslUrl, policyUrl);
 
         return paths;
+    }
+
+
+    private String getUrlTemplate(final Artifact artifact, final Map<String, String> urlTemplates) {
+        final String urlTemplate = urlTemplates.get(artifact.getArtifactId());
+        if(urlTemplate == null)
+        {
+            return urlTemplates.get(DEFAULT_RSL_KEY); //Default Template
+        }
+        return urlTemplate;
     }
 
     @SuppressWarnings( "unchecked" )
@@ -2244,7 +2221,7 @@ public abstract class AbstractFlexCompilerMojo<CFG, C extends AbstractFlexCompil
         {
             return null;
         }
-        return Arrays.asList( includes );
+        return Arrays.asList(includes);
     }
 
     public Boolean getIncremental()
@@ -2403,7 +2380,7 @@ public abstract class AbstractFlexCompilerMojo<CFG, C extends AbstractFlexCompil
 
     public String[] getLoadConfig()
     {
-        return PathUtil.paths( ConfigurationResolver.resolveConfiguration( loadConfigs, loadConfig, configDirectory ) );
+        return PathUtil.paths(ConfigurationResolver.resolveConfiguration(loadConfigs, loadConfig, configDirectory));
     }
 
     @SuppressWarnings( { "unchecked", "deprecation" } )
@@ -2434,7 +2411,7 @@ public abstract class AbstractFlexCompilerMojo<CFG, C extends AbstractFlexCompil
             return null;
         }
 
-        return PathUtil.paths( MavenUtils.getFilesSet( artifacts ) );
+        return PathUtil.paths( MavenUtils.getFilesSet(artifacts) );
     }
 
     public String[] getLocale()
@@ -2628,11 +2605,11 @@ public abstract class AbstractFlexCompilerMojo<CFG, C extends AbstractFlexCompil
         return PathUtil.path( output );
     }
 
-    public String[] getPolicyFileUrls()
+    public Map<String, String> getPolicyFileUrls()
     {
         if ( policyFileUrls == null )
         {
-            return new String[0];
+            return emptyMap();
         }
         return policyFileUrls;
     }
@@ -2704,16 +2681,16 @@ public abstract class AbstractFlexCompilerMojo<CFG, C extends AbstractFlexCompil
             throw new MavenRuntimeException( e );
         }
 
-        return Arrays.asList( bundles.substring( 10 ).split( " " ) );
+        return Arrays.asList(bundles.substring(10).split(" "));
     }
 
     /**
      * File content sample:
-     * 
+     *
      * <pre>
      * bundles = containers core effects skins styles
      * </pre>
-     * 
+     *
      * @return bundle list file
      */
     protected File getResourceBundleListFile()
@@ -2737,13 +2714,22 @@ public abstract class AbstractFlexCompilerMojo<CFG, C extends AbstractFlexCompil
         return resourceHack;
     }
 
-    public String[] getRslUrls()
+    public Map<String, String> getPrimaryRslUrls()
     {
-        if ( rslUrls == null )
+        if ( primaryRslUrls == null )
         {
             return DEFAULT_RSL_URLS;
         }
-        return rslUrls;
+        return primaryRslUrls;
+    }
+
+    public Map<String, String> getFallbackRslUrls()
+    {
+        if ( fallbackRslUrls == null )
+        {
+            return DEFAULT_RSL_URLS;
+        }
+        return fallbackRslUrls;
     }
 
     public final String[] getRuntimeSharedLibraries()
@@ -2769,24 +2755,13 @@ public abstract class AbstractFlexCompilerMojo<CFG, C extends AbstractFlexCompil
             return null;
         }
 
-        final String[] rslUrls = getRslUrls();
-        final String[] policyFileUrls = getPolicyFileUrls();
-
-        // not sure if all this validation are required
-        if ( rslUrls.length < policyFileUrls.length //
-            && policyFileUrls.length != 0 //
-            && rslUrls.length != policyFileUrls.length //
-            && rslUrls.length != policyFileUrls.length - 1 )
-        {
-            throw new IllegalArgumentException(
-                                                "The number of elements on RSL Urls and Policy File Urls doesn't match: "
-                                                    + rslUrls.length + "/" + rslUrls.length );
-        }
+        final Map<String, String> primaryRslUrls = getPrimaryRslUrls();
+        final Map<String, String> fallbackRslUrls = getFallbackRslUrls();
+        final Map<String, String> policyFileUrls = getPolicyFileUrls();
 
         List<IRuntimeSharedLibraryPath> rsls = new ArrayList<IRuntimeSharedLibraryPath>();
         for ( final Artifact artifact : dependencies )
         {
-
             rsls.add( new IRuntimeSharedLibraryPath()
             {
                 public String pathElement()
@@ -2796,7 +2771,7 @@ public abstract class AbstractFlexCompilerMojo<CFG, C extends AbstractFlexCompil
 
                 public Map<String, String> rslUrl()
                 {
-                    return calculateRuntimeLibraryPath( artifact, rslUrls, policyFileUrls );
+                    return calculateRuntimeLibraryPath( artifact, primaryRslUrls, fallbackRslUrls, policyFileUrls );
                 }
             } );
         }

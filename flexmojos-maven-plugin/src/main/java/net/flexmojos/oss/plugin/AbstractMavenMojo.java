@@ -17,31 +17,18 @@
  */
 package net.flexmojos.oss.plugin;
 
-import static ch.lambdaj.Lambda.filter;
-import static ch.lambdaj.Lambda.selectFirst;
-import static org.hamcrest.CoreMatchers.allOf;
-import static org.hamcrest.CoreMatchers.anyOf;
-import static net.flexmojos.oss.matcher.artifact.ArtifactMatcher.artifactId;
-import static net.flexmojos.oss.matcher.artifact.ArtifactMatcher.classifier;
-import static net.flexmojos.oss.matcher.artifact.ArtifactMatcher.groupId;
-import static net.flexmojos.oss.matcher.artifact.ArtifactMatcher.type;
-import static net.flexmojos.oss.plugin.common.FlexExtension.AS;
-import static net.flexmojos.oss.plugin.common.FlexExtension.MXML;
-import static net.flexmojos.oss.plugin.common.FlexExtension.SWC;
-
-import java.io.*;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
+import flex2.compiler.Logger;
+import flex2.compiler.common.SinglePathResolver;
+import flex2.tools.oem.internal.OEMLogAdapter;
+import net.flexmojos.oss.compatibilitykit.VersionUtils;
+import net.flexmojos.oss.compiler.command.Result;
+import net.flexmojos.oss.plugin.common.flexbridge.MavenLogger;
+import net.flexmojos.oss.plugin.common.flexbridge.MavenPathResolver;
+import net.flexmojos.oss.plugin.compiler.attributes.MavenRuntimeException;
+import net.flexmojos.oss.plugin.compiler.lazyload.Cacheable;
+import net.flexmojos.oss.plugin.compiler.lazyload.NotCacheable;
+import net.flexmojos.oss.plugin.utilities.MavenUtils;
+import net.flexmojos.oss.util.PathUtil;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.maven.artifact.Artifact;
@@ -66,24 +53,9 @@ import org.codehaus.plexus.util.DirectoryScanner;
 import org.codehaus.plexus.util.FileUtils;
 import org.codehaus.plexus.util.IOUtil;
 import org.codehaus.plexus.util.InterpolationFilterReader;
-import org.codehaus.plexus.util.xml.Xpp3Dom;
-import org.codehaus.plexus.util.xml.Xpp3DomBuilder;
 import org.hamcrest.Matcher;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
-import net.flexmojos.oss.compatibilitykit.VersionUtils;
-import net.flexmojos.oss.compiler.command.Result;
-import net.flexmojos.oss.plugin.common.flexbridge.MavenLogger;
-import net.flexmojos.oss.plugin.common.flexbridge.MavenPathResolver;
-import net.flexmojos.oss.plugin.compiler.attributes.MavenRuntimeException;
-import net.flexmojos.oss.plugin.compiler.lazyload.Cacheable;
-import net.flexmojos.oss.plugin.compiler.lazyload.NotCacheable;
-import net.flexmojos.oss.plugin.utilities.MavenUtils;
-import net.flexmojos.oss.util.PathUtil;
-
-import flex2.compiler.Logger;
-import flex2.compiler.common.SinglePathResolver;
-import flex2.tools.oem.internal.OEMLogAdapter;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
@@ -93,6 +65,18 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathFactory;
+import java.io.*;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.*;
+
+import static ch.lambdaj.Lambda.filter;
+import static ch.lambdaj.Lambda.selectFirst;
+import static java.util.Collections.singletonMap;
+import static net.flexmojos.oss.matcher.artifact.ArtifactMatcher.*;
+import static net.flexmojos.oss.plugin.common.FlexExtension.*;
+import static org.hamcrest.CoreMatchers.allOf;
+import static org.hamcrest.CoreMatchers.anyOf;
 
 public abstract class AbstractMavenMojo
     implements Mojo, Cacheable, ContextEnabled
@@ -100,11 +84,13 @@ public abstract class AbstractMavenMojo
 
     public static final DateFormat DATE_FORMAT = new SimpleDateFormat();
 
-    public static final String[] DEFAULT_RSL_URLS =
-        new String[] { "/{contextRoot}/rsl/{artifactId}-{version}.{extension}" };
-
     public static final String DEFAULT_RUNTIME_LOCALE_OUTPUT_PATH =
-        "/{contextRoot}/locales/{artifactId}-{version}-{locale}.{extension}";
+            "/{contextRoot}/locales/{artifactId}-{version}-{locale}.{extension}";
+
+    public static final String DEFAULT_RSL_KEY = "_artifactId_";
+
+    public static final Map<String, String> DEFAULT_RSL_URLS = singletonMap(DEFAULT_RSL_KEY,
+            DEFAULT_RUNTIME_LOCALE_OUTPUT_PATH);
 
     public static final String AIR_GROUP_ID = "com.adobe.air.framework";
     public static final String FLASH_GROUP_ID = "com.adobe.flash.framework";
@@ -141,7 +127,7 @@ public abstract class AbstractMavenMojo
 
     /**
      * The maven configuration directory
-     * 
+     *
      * @parameter expression="${basedir}/src/main/config"
      * @required
      * @readonly
@@ -151,7 +137,7 @@ public abstract class AbstractMavenMojo
     /**
      * When false (faster) Flexmojos will compiler modules and resource bundles using multiple threads (One per SWF). If
      * true, Thread.join() will be invoked to make the execution synchronous (sequential).
-     * 
+     *
      * @parameter expression="${flex.fullSynchronization}" default-value="false"
      */
     protected boolean fullSynchronization;
@@ -167,7 +153,7 @@ public abstract class AbstractMavenMojo
 
     /**
      * Local repository to be used by the plugin to resolve dependencies.
-     * 
+     *
      * @parameter expression="${localRepository}"
      * @readonly
      */
@@ -175,7 +161,7 @@ public abstract class AbstractMavenMojo
 
     /**
      * Maven logger
-     * 
+     *
      * @readonly
      */
     Log log;
@@ -204,7 +190,7 @@ public abstract class AbstractMavenMojo
 
     /**
      * The maven project.
-     * 
+     *
      * @parameter expression="${project}"
      * @required
      * @readonly
@@ -221,14 +207,14 @@ public abstract class AbstractMavenMojo
     /**
      * Quick compile mode. When true, Flexmojos will check if the latest artifact available at maven repository for this
      * project is newer then sources. If so, wont recompile.
-     * 
+     *
      * @parameter default-value="false" expression="${flexmojos.quick}"
      */
     protected boolean quick;
 
     /**
      * List of remote repositories to be used by the plugin to resolve dependencies.
-     * 
+     *
      * @parameter expression="${project.remoteArtifactRepositories}"
      * @readonly
      */
@@ -242,7 +228,7 @@ public abstract class AbstractMavenMojo
 
     /**
      * The maven resources
-     * 
+     *
      * @parameter expression="${project.build.resources}"
      * @required
      * @readonly
@@ -251,7 +237,7 @@ public abstract class AbstractMavenMojo
 
     /**
      * The Maven Session Object
-     * 
+     *
      * @parameter expression="${session}"
      * @required
      * @readonly
@@ -260,7 +246,7 @@ public abstract class AbstractMavenMojo
 
     /**
      * Skips flexmojos goal execution
-     * 
+     *
      * @parameter expression="${flexmojos.skip}"
      */
     protected boolean skip;
