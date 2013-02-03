@@ -105,14 +105,15 @@
             is outside the valid version range and for air applications 4.6 and above 2.5 is outside the lower bound of
             valid versions
         -->
-        <flex.version>4.5.1.21328</flex.version>
-        <player.version>10.2</player.version>
-        <flex.groupId>com.adobe.flex</flex.groupId>
+        <!--<flex.version>4.5.1.21328</flex.version>-->
+        <!--<player.version>10.2</player.version>-->
+        <!--<flex.groupId>com.adobe.flex</flex.groupId>-->
 
         <!-- Compile with 4.6.0 (PASSED) -->
-        <!--<flex.version>4.6.0.23201</flex.version>-->
-        <!--<player.version>11.1</player.version>-->
-        <!--<flex.groupId>com.adobe.flex</flex.groupId>-->
+        <flex.version>4.6.0.23201</flex.version>
+        <air.version>3.1</air.version>
+        <player.version>11.1</player.version>
+        <flex.groupId>com.adobe.flex</flex.groupId>
 
         <!-- Compile with 4.8.0
             - All tests addressing the caching framework will fail as no 4.8 SWZ libraries are provided by adobe.
