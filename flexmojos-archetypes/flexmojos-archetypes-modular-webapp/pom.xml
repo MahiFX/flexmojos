@@ -24,7 +24,7 @@
   <parent>
     <artifactId>flexmojos-archetypes</artifactId>
     <groupId>net.flexmojos.oss</groupId>
-    <version>6.0.2-mahi-SNAPSHOT</version>
+    <version>6.0.2-mahi</version>
   </parent>
 
   <artifactId>flexmojos-archetypes-modular-webapp</artifactId>

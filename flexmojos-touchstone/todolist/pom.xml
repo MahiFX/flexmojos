@@ -45,7 +45,7 @@
         <plugin>
           <groupId>net.flexmojos.oss</groupId>
           <artifactId>flexmojos-maven-plugin</artifactId>
-          <version>6.0.2-mahi-SNAPSHOT</version>
+          <version>6.0.2-mahi</version>
           <dependencies>
             <dependency>
               <groupId>com.adobe.flex</groupId>
