@@ -263,8 +263,7 @@ public class SignAirMojo
                     {
                         continue;
                     }
-                    File directory = file( set.getDirectory(), project.getBasedir() );
-
+                    File directory = scanner.getBasedir();
                     String[] files = scanner.getIncludedFiles();
                     for ( String path : files )
                     {
@@ -381,6 +380,7 @@ public class SignAirMojo
             Map<String, String> props = new HashMap<String, String>();
             props.put( "output", output.getName() );
             props.put( "version", version );
+            props.put( "versionLabel", project.getVersion() );
 
             FileInterpolationUtil.copyFile( descriptorTemplate, dest, props );
 
