@@ -124,7 +124,9 @@ public class DefaultFlexCompilerArgumentParser
             }
             else if ( cfg instanceof IFontsConfiguration && "managers".equals( name ) )
             {
-                args.add( new Entry<String, List<String>>( name, (List<String>) value ) );
+                final List<String> strings = (List<String>) value;
+                strings.add(" --");
+                args.add( new Entry<String, List<String>>( name, strings) );
             }
             else if ( value instanceof IRuntimeSharedLibraryPath || value instanceof IRuntimeSharedLibraryPath[] )
             {

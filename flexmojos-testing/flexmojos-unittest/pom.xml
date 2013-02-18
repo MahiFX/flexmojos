@@ -47,7 +47,7 @@
                     <dependency>
                         <groupId>${flex.groupId}</groupId>
                         <artifactId>compiler</artifactId>
-                        <version>${flex.version}A</version>
+                        <version>${flex.version}</version>
                         <type>pom</type>
                     </dependency>
                 </dependencies>
@@ -97,14 +97,14 @@
             <dependency>
                 <groupId>${flex.groupId}</groupId>
                 <artifactId>framework</artifactId>
-                <version>${flex.version}A</version>
+                <version>${flex.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
             <dependency>
                 <groupId>${flex.groupId}.framework.air</groupId>
                 <artifactId>air</artifactId>
-                <version>${flex.version}A</version>
+                <version>${flex.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
