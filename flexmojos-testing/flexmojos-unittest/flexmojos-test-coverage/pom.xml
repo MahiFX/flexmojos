@@ -23,12 +23,12 @@
   <parent>
     <groupId>net.flexmojos.oss</groupId>
     <artifactId>flexmojos-unittest</artifactId>
-    <version>5.1-mahi</version>
+    <version>5.1-mahi2</version>
   </parent>
 
   <artifactId>flexmojos-test-coverage</artifactId>
   <packaging>swc</packaging>
-  
+
   <name>Flexmojos Unit Test Coverage</name>
 
   <dependencies>

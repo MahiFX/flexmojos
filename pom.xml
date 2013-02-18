@@ -30,7 +30,7 @@
 
     <groupId>net.flexmojos.oss</groupId>
     <artifactId>flexmojos-parent</artifactId>
-    <version>5.1-mahi</version>
+    <version>5.1-mahi2</version>
     <packaging>pom</packaging>
 
     <name>Flexmojos Parent</name>
@@ -56,41 +56,6 @@
         </snapshotRepository>
     </distributionManagement>
 
-    <repositories>
-        <repository>
-            <id>snapshots</id>
-            <name>snapshots</name>
-            <url>http://build.mahifx.com:8081/nexus/content/groups/snapshot</url>
-            <releases>
-                <enabled>false</enabled>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-        </repository>
-        <repository>
-            <id>thirdparty</id>
-            <url>http://build.mahifx.com/nexus/content/repositories/thirdparty</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
-    </repositories>
-    <pluginRepositories>
-        <pluginRepository>
-            <id>rso</id>
-            <url>http://repository.sonatype.org/content/groups/flexgroup/</url>
-        </pluginRepository>
-
-        <pluginRepository>
-            <id>releases</id>
-            <url>http://build.mahifx.com/nexus/content/repositories/thirdparty</url>
-        </pluginRepository>
-    </pluginRepositories>
-
     <licenses>
         <license>
             <name>GPL</name>
@@ -102,7 +67,8 @@
     <properties>
         <commons_io.version>1.4</commons_io.version>
         <!--<flex.sdk.version>4.5.1.21328</flex.sdk.version>-->
-        <flex.sdk.version>4.6.0.23201B</flex.sdk.version>
+        <flex.sdk.version>4.6.0.23201</flex.sdk.version>
+        <flex.player.version>4.6.b.23201</flex.player.version>
         <maven.version>3.0.4</maven.version>
         <maven-site-plugin.version>3.0-beta-3</maven-site-plugin.version>
         <sisu.version>2.1.1</sisu.version>
@@ -116,7 +82,7 @@
                 <plugin>
                     <groupId>net.flexmojos.oss</groupId>
                     <artifactId>flexmojos-maven-plugin</artifactId>
-                    <version>5.1-mahi</version>
+                    <version>5.1-mahi2</version>
                 </plugin>
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>

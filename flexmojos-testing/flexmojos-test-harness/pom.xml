@@ -25,7 +25,7 @@
   <parent>
     <groupId>net.flexmojos.oss</groupId>
     <artifactId>flexmojos-testing</artifactId>
-    <version>5.1-mahi</version>
+    <version>5.1-mahi2</version>
   </parent>
 
   <artifactId>flexmojos-test-harness</artifactId>
@@ -230,7 +230,7 @@
             <xml>net.flexmojos.oss:flexmojos-air-super-pom:${project.version}:pom</xml>
             <xml>net.flexmojos.oss:flexmojos-flex-super-pom:${project.version}:pom</xml>
             <xml>net.flexmojos.oss:flexmojos-super-pom-commons:${project.version}:pom</xml>
-            
+
             <xml>net.flexmojos.oss:flexmojos-sample-configurator:${project.version}:jar</xml>
           </extraArtifacts>
         </configuration>

@@ -23,7 +23,7 @@
   <parent>
     <groupId>net.flexmojos.oss</groupId>
     <artifactId>flexmojos-parent</artifactId>
-    <version>5.1-mahi</version>
+    <version>5.1-mahi2</version>
   </parent>
 
   <artifactId>flexmojos-archetypes</artifactId>
@@ -36,7 +36,7 @@
     <module>flexmojos-archetypes-library</module>
     <module>flexmojos-archetypes-modular-webapp</module>
   </modules>
-  
+
   <properties>
     <flex.version>${flex.sdk.version}</flex.version>
   </properties>

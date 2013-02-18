@@ -23,7 +23,7 @@
   <parent>
     <groupId>net.flexmojos.oss</groupId>
     <artifactId>flexmojos-testing</artifactId>
-    <version>5.1-mahi</version>
+    <version>5.1-mahi2</version>
   </parent>
 
   <artifactId>flexmojos-unittest</artifactId>

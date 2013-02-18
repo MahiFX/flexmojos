@@ -25,7 +25,7 @@
   <parent>
     <artifactId>flexmojos-sandbox</artifactId>
     <groupId>net.flexmojos.oss</groupId>
-    <version>5.1-mahi</version>
+    <version>5.1-mahi2</version>
   </parent>
 
   <artifactId>flexmojos-nexus-plugin</artifactId>
@@ -41,7 +41,7 @@
 
   <dependencies>
 
-    <!-- Note: there are two sets of dependencies here, the basic (minimal dependencies needed to build Nexus plugins), and the ITset, that is needed if you want to write IT tests using real Nexus environment to test your plugins. If you are using other technique 
+    <!-- Note: there are two sets of dependencies here, the basic (minimal dependencies needed to build Nexus plugins), and the ITset, that is needed if you want to write IT tests using real Nexus environment to test your plugins. If you are using other technique
       (like having separate module for IT tests), you can freely remove or just move outside of this module these dependencies. The ITset of requirements in this POM are put in between "#ITSet BEGINS" and "#ITSet ENDS" pair of comments. -->
 
     <!-- Main plugin API, pulling in what is needed -->

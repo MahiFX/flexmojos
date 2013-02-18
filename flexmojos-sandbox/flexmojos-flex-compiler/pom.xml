@@ -23,7 +23,7 @@
   <parent>
     <groupId>net.flexmojos.oss</groupId>
     <artifactId>flexmojos-sandbox</artifactId>
-    <version>5.1-mahi</version>
+    <version>5.1-mahi2</version>
   </parent>
 
   <artifactId>flexmojos-flex-compiler</artifactId>
@@ -122,7 +122,7 @@
                 <artifactItem>
                   <groupId>com.adobe.flex.framework</groupId>
                   <artifactId>playerglobal</artifactId>
-                  <version>${flex.sdk.version}</version>
+                  <version>${flex.player.version}</version>
                   <classifier>11.1</classifier>
                   <type>swc</type>
                   <destFileName>playerglobal.swc</destFileName>
