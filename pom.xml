@@ -95,6 +95,8 @@
     </licenses>
 
     <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
         <!-- Compile for 4.5.1 (PASSED)
             When compiling against 4.5.1 several files have to be modified:
             - flexmojos-testing/flexmojos-test-harness/projects/concept/native-air/src/main/resources/descriptor.xml
@@ -140,7 +142,7 @@
                 <plugin>
                     <groupId>net.flexmojos.oss</groupId>
                     <artifactId>flexmojos-maven-plugin</artifactId>
-                    <version>6.0-mahi</version>
+                    <version>${project.version}</version>
                 </plugin>
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
