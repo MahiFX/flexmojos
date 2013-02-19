@@ -24,7 +24,7 @@
   <parent>
     <artifactId>flexmojos-parent</artifactId>
     <groupId>net.flexmojos.oss</groupId>
-    <version>6.0.4-mahi-SNAPSHOT</version>
+    <version>6.0.4-mahi</version>
   </parent>
 
   <artifactId>flexmojos-generator</artifactId>
