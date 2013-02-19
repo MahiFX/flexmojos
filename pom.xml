@@ -30,7 +30,7 @@
 
     <groupId>net.flexmojos.oss</groupId>
     <artifactId>flexmojos-parent</artifactId>
-    <version>6.0.4-mahi</version>
+    <version>6.0.5-mahi-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>Flexmojos Parent</name>
