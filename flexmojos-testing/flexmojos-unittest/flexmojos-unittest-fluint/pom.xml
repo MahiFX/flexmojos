@@ -25,7 +25,7 @@
   <parent>
     <groupId>net.flexmojos.oss</groupId>
     <artifactId>flexmojos-unittest</artifactId>
-    <version>6.0.5-mahi-SNAPSHOT</version>
+    <version>6.0.5-mahi</version>
   </parent>
 
   <artifactId>flexmojos-unittest-fluint</artifactId>
