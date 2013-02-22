@@ -41,6 +41,8 @@ import java.security.PrivateKey;
 import java.security.cert.Certificate;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import static net.flexmojos.oss.plugin.common.FlexExtension.*;
 import static net.flexmojos.oss.util.PathUtil.file;
@@ -75,6 +77,12 @@ public class SignAirMojo
      * @required
      */
     private File descriptorTemplate;
+
+    /**
+     * Additional properties to substitute into the air descriptor
+     * @parameter
+     */
+    private Map<String, String> descriptorTemplateProperties;
 
     /**
      * Ideally Adobe would have used some parseable token, not a huge pass-phrase on the descriptor output. They did
@@ -377,10 +385,9 @@ public class SignAirMojo
         File dest = new File( airOutput, project.getBuild().getFinalName() + "-descriptor.xml" );
         try
         {
-            Map<String, String> props = new HashMap<String, String>();
-            props.put( "output", output.getName() );
-            props.put( "version", version );
-            props.put( "versionLabel", project.getVersion() );
+            ConcurrentMap<String, String> props = getDescriptorProperties();
+            props.putIfAbsent("output", output.getName());
+            props.putIfAbsent("version", version);
 
             FileInterpolationUtil.copyFile( descriptorTemplate, dest, props );
 
@@ -403,6 +410,14 @@ public class SignAirMojo
         }
 
         return dest;
+    }
+
+    private ConcurrentMap<String, String> getDescriptorProperties() {
+        final ConcurrentHashMap<String, String> templateProps = new ConcurrentHashMap<String, String>();
+        if (descriptorTemplateProperties != null) {
+            templateProps.putAll(descriptorTemplateProperties);
+        }
+        return templateProps;
     }
 
     private File getOutput()
