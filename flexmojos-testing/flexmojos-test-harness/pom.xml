@@ -135,7 +135,7 @@
 
             <plugin>
                 <artifactId>maven-invoker-plugin</artifactId>
-                <version>1.6-SONATYPE-r940877</version>
+                <version>1.7</version>
                 <configuration>
                     <localRepositoryPath>${fake-repo}</localRepositoryPath>
                     <extraArtifacts>
@@ -733,14 +733,14 @@
 
                         -->
 
-                        <xml>com.adobe.flash.framework:playerglobal:10.0:rb.swc:en_US</xml>
-                        <xml>com.adobe.flash.framework:playerglobal:10.1:rb.swc:en_US</xml>
+                        <!--<xml>com.adobe.flash.framework:playerglobal:10.0:rb.swc:en_US</xml>-->
+                        <!--<xml>com.adobe.flash.framework:playerglobal:10.1:rb.swc:en_US</xml>-->
                         <xml>com.adobe.flash.framework:playerglobal:10.2:rb.swc:en_US</xml>
                         <xml>com.adobe.flash.framework:playerglobal:11.1:rb.swc:en_US</xml>
                         <xml>com.adobe.flash.framework:playerglobal:${player.version}:rb.swc:en_US</xml>
 
-                        <xml>com.adobe.flash.framework:playerglobal:10.0:rb.swc:ja_JP</xml>
-                        <xml>com.adobe.flash.framework:playerglobal:10.1:rb.swc:ja_JP</xml>
+                        <!--<xml>com.adobe.flash.framework:playerglobal:10.0:rb.swc:ja_JP</xml>-->
+                        <!--<xml>com.adobe.flash.framework:playerglobal:10.1:rb.swc:ja_JP</xml>-->
                         <xml>com.adobe.flash.framework:playerglobal:10.2:rb.swc:ja_JP</xml>
                         <xml>com.adobe.flash.framework:playerglobal:11.1:rb.swc:ja_JP</xml>
                         <xml>com.adobe.flash.framework:playerglobal:${player.version}:rb.swc:ja_JP</xml>
@@ -755,8 +755,8 @@
                         <xml>net.flexmojos.oss:flexmojos-archetypes-application:${project.version}</xml>
                         <xml>net.flexmojos.oss:flexmojos-archetypes-library:${project.version}</xml>
                         <xml>net.flexmojos.oss:flexmojos-archetypes-modular-webapp:${project.version}</xml>
-                        <xml>net.flexmojos.oss:flexmojos-flex2-compatibility-layer:${project.version}</xml>
-                        <xml>net.flexmojos.oss:flexmojos-flex3-compatibility-layer:${project.version}</xml>
+                        <!--<xml>net.flexmojos.oss:flexmojos-flex2-compatibility-layer:${project.version}</xml>-->
+                        <!--<xml>net.flexmojos.oss:flexmojos-flex3-compatibility-layer:${project.version}</xml>-->
 
                         <xml>net.flexmojos.oss:flexmojos-generator-graniteds-1.1.0:${project.version}</xml>
                         <xml>net.flexmojos.oss:flexmojos-generator-graniteds-2.0.0:${project.version}</xml>
