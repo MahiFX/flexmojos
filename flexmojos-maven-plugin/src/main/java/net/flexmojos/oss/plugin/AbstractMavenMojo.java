@@ -65,16 +65,34 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathFactory;
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import static ch.lambdaj.Lambda.filter;
 import static ch.lambdaj.Lambda.selectFirst;
 import static java.util.Collections.singletonMap;
-import static net.flexmojos.oss.matcher.artifact.ArtifactMatcher.*;
-import static net.flexmojos.oss.plugin.common.FlexExtension.*;
+import static net.flexmojos.oss.matcher.artifact.ArtifactMatcher.artifactId;
+import static net.flexmojos.oss.matcher.artifact.ArtifactMatcher.classifier;
+import static net.flexmojos.oss.matcher.artifact.ArtifactMatcher.groupId;
+import static net.flexmojos.oss.matcher.artifact.ArtifactMatcher.type;
+import static net.flexmojos.oss.plugin.common.FlexExtension.AS;
+import static net.flexmojos.oss.plugin.common.FlexExtension.MXML;
+import static net.flexmojos.oss.plugin.common.FlexExtension.SWC;
 import static org.hamcrest.CoreMatchers.allOf;
 import static org.hamcrest.CoreMatchers.anyOf;
 
@@ -87,10 +105,11 @@ public abstract class AbstractMavenMojo
     public static final String DEFAULT_RUNTIME_LOCALE_OUTPUT_PATH =
             "/{contextRoot}/locales/{artifactId}-{version}-{locale}.{extension}";
 
+    public static final String DEFAULT_RUNTIME_SHARED_LIBRARY_OUTPUT_PATH = "/{contextRoot}/rsl/{artifactId}-{version}.{extension}";
+
     public static final String DEFAULT_RSL_KEY = "_artifactId_";
 
-    public static final Map<String, String> DEFAULT_RSL_URLS = singletonMap(DEFAULT_RSL_KEY,
-            DEFAULT_RUNTIME_LOCALE_OUTPUT_PATH);
+    public static final Map<String, String> DEFAULT_RSL_URLS = singletonMap(DEFAULT_RSL_KEY, DEFAULT_RUNTIME_SHARED_LIBRARY_OUTPUT_PATH);
 
     public static final String AIR_GROUP_ID = "com.adobe.air.framework";
     public static final String FLASH_GROUP_ID = "com.adobe.flash.framework";

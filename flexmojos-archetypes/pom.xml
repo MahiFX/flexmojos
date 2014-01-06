@@ -23,7 +23,7 @@
   <parent>
     <groupId>net.flexmojos.oss</groupId>
     <artifactId>flexmojos-parent</artifactId>
-    <version>6.0.5-mahi</version>
+    <version>6.0.6-mahi-SNAPSHOT</version>
   </parent>
 
   <artifactId>flexmojos-archetypes</artifactId>
